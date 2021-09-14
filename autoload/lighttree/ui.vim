@@ -3,7 +3,11 @@ let g:lighttree_ui_line_sep = get(g:, 'lighttree_ui_line_sep', '')
 let g:lighttree_ui_indent = get(g:, 'lighttree_ui_indent', 2)
 let s:ui = {}
 
-function! lighttree#ui#new(trees = [], opener = function('lighttree#view#opener_basic'))
+function! lighttree#ui#new(
+            \   trees = [],
+            \   opener = function('lighttree#view#opener_basic'),
+            \   name_wrapper = function('lighttree#util#name_wrapper')
+            \ )
     let ui = copy(s:ui)
     let ui.tree_list = a:trees
     let ui.linenr_map = [0]
@@ -172,7 +176,17 @@ function! s:ui.toggle(linenr)
     endif
 endfunction
 
-function! s:ui.refresh_node(node, currentline, depth)
-    
+function! s:ui.refresh_node(tree, node, currentline, in_order)
+    let tree = a:tree
+    let node = a:node
+    let depth = self.getnode_depth(node)
+    call lighttree#events#broadcast0('refresh_node', node)
+    if a:in_order
+        call tree.sort(node)
+    endif
+    if node.isopen
+        call self.render_clear_child(tree, node, a:currentline)
+        call self.render_node(tree, node, a:currentline, depth, 1)
+    endif
 endfunction
 

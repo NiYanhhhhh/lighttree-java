@@ -110,3 +110,33 @@ function! s:tree.getlength_of_node(node)
     endif
     return length
 endfunction
+
+function! s:tree.sort(node)
+    if exists('self.sorter')
+        call self.sorter(a:node)
+    else
+        call s:sort_default(self, a:node)
+    endif
+endfunction
+
+function! s:sort_default(tree, node)
+    let name_list = []
+    let sort_result = []
+    for child_id in a:node.children
+        let child = self.find_node(child_id)
+        call add(name_list, child.name)
+    endfor
+
+endfunction
+
+function! s:tree.wrap_name(node)
+    if exists('self.name_wrapper')
+        call self.name_wrapper()
+    else
+        call s:wrap_name_default(self, a:node)
+    endif
+endfunction
+
+function! s:wrap_name_default(tree, node)
+    
+endfunction
