@@ -100,3 +100,25 @@ function! lighttree#util#get_bufnr_of_filetype(filetype)
     return 0
 endfunction
 
+function! lighttree#util#compare_func_for_str(str1, str2)
+    let l_end = ["JRE System Library", "Dependencies"]
+    let index1 = -1
+    let index2 = -1
+    for i in range(len(l_end))
+        let index1 = a:str1 =~# l_end[i] ? i : index1
+        let index2 = a:str2 =~# l_end[i] ? i : index2
+    endfor
+    if index1 > index2
+        return 1
+    elseif index1 < index2
+        return -1
+    endif
+
+    if index1 == index2 && index1 != -1
+        return 0
+    endif
+
+    return a:str1 > a:str2 ? 1:
+                \ a:str1 == a:str2 ? 0: -1
+endfunction
+

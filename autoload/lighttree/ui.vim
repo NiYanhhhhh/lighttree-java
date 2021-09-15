@@ -178,10 +178,17 @@ function! s:ui.toggle(linenr)
     endif
 endfunction
 
+function! s:ui.refresh_node0(linenr, in_order = 1)
+    let tree = self.gettree_from_linenr(a:linenr)
+    let node = self.getnode_from_linenr(a:linenr)
+    call self.refresh_node(tree, node, a:linenr, a:in_order)
+endfunction
+
 function! s:ui.refresh_node(tree, node, currentline, in_order)
+    set modifiable
     let tree = a:tree
     let node = a:node
-    let depth = self.getnode_depth(node)
+    let depth = self.getnode_depth(tree, node)
     call lighttree#events#broadcast0('refresh_node', node)
     if a:in_order
         call tree.sort(node)
@@ -191,6 +198,7 @@ function! s:ui.refresh_node(tree, node, currentline, in_order)
         call self.render_node(tree, node, a:currentline, depth, 1)
     endif
     call self.render_node_text(tree, node, a:currentline, depth)
+    set nomodifiable
 endfunction
 
 function! s:ui.render_node_text(tree, node, currentline, depth = -1)

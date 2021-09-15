@@ -112,21 +112,51 @@ function! s:tree.getlength_of_node(node)
 endfunction
 
 function! s:tree.sort(node)
-    if exists('self.sorter')
-        call self.sorter(a:node)
-    else
-        call s:sort_default(self, a:node)
+    let Func_cp = function('lighttree#util#compare_func_for_str')
+    if exists('self.compare_func')
+        let Func_cp = self.compare_func
     endif
-endfunction
 
-function! s:sort_default(tree, node)
-    let name_list = []
-    let sort_result = []
+    function! s:insert_sort(name_list, id_list, func)
+        let name_list = a:name_list
+        let id_list = a:id_list
+        if len(name_list) == 0
+            return
+        endif
+        for i in range(1, len(name_list) - 1)
+            let name0 = name_list[i]
+            let id0 = id_list[i]
+            let j = i-1
+            while j >= 0 && a:func(name_list[j], name0) > 0
+                let name_list[j + 1] = name_list[j]
+                let id_list[j + 1] = id_list[j]
+                let j -= 1
+            endwhile
+            let name_list[j + 1] = name0
+            let id_list[j + 1] = id0
+        endfor
+    endfunction
+
+    " leaf list
+    let name_list0 = []
+    let id_list0 = []
+    " not leaf
+    let name_list1 = []
+    let id_list1 = []
     for child_id in a:node.children
         let child = self.find_node(child_id)
-        call add(name_list, child.name)
+        if child.isleaf
+            call add(name_list0, child.name)
+            call add(id_list0, child.id)
+        else
+            call add(name_list1, child.name)
+            call add(id_list1, child.id)
+        endif
     endfor
+    call s:insert_sort(name_list0, id_list0, Func_cp)
+    call s:insert_sort(name_list1, id_list1, Func_cp)
 
+    let a:node.children = id_list1 + id_list0
 endfunction
 
 function! s:tree.wrap_name(node)
@@ -143,7 +173,7 @@ function! s:wrap_name_default(tree, node)
     let sign_leaf = ' '
     let node = a:node
     let text = node.name
-    let text = node.isleaf ? sign_leaf . ' ' . text : 
+    let text = node.isleaf ? sign_leaf . ' ' . text :
                 \ node.isopen ? sign_open . ' ' . text :
                 \ sign_close . ' ' . text
     if !exists('a:node.parent') && node.name != a:tree.name

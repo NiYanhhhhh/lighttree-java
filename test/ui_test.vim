@@ -43,6 +43,9 @@ function! s:ui_test()
     let leaf2 = {'name': 'leaf2'}
     call lighttree#util#wrap_node(leaf2)
     let leaf2.parent = child1.id
+    let a_leaf = {'name': 'a_leaf'}
+    call lighttree#util#wrap_node(a_leaf)
+    let a_leaf.parent = child1.id
     let leaf3 = {'name': 'leaf3'}
     call lighttree#util#wrap_node(leaf3)
     let leaf3.parent = child2.id
@@ -52,6 +55,7 @@ function! s:ui_test()
     call tree.add_node(leaf2)
     call tree.add_node(leaf3)
     call tree.add_node(leaf4)
+    call tree.add_node(a_leaf)
 
     let root1 = {'name': 'root1'}
     call lighttree#util#wrap_node(root1)
@@ -61,8 +65,10 @@ function! s:ui_test()
     call tree1.create(root1)
 
     let win_id = lighttree#view#create_win()
-    exec 'edit lighttree_' . lighttree#util#get_next_bufnr()
-    let t:lighttree_buffer = 'lighttree_' . lighttree#util#get_next_bufnr()
+    let bufnr = lighttree#util#get_next_bufnr()
+    set modifiable
+    exec 'edit lighttree_' . bufnr
+    let t:lighttree_buffer = 'lighttree_' . bufnr
     call lighttree#view#setup_buffer()
     call lighttree#view#common_map()
     if exists('b:lighttree_ui')

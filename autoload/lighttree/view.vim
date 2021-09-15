@@ -61,6 +61,7 @@ function! lighttree#view#common_map()
     nnoremap <buffer> s <cmd>call b:lighttree_ui.open(line('.'), {'flag': 'v'})<cr>
     nnoremap <buffer> i <cmd>call b:lighttree_ui.open(line('.'), {'flag': 'h'})<cr>
     nnoremap <buffer> t <cmd>call b:lighttree_ui.open(line('.'), {'flag': 't'})<cr>
+    nnoremap <buffer> r <cmd>call b:lighttree_ui.refresh_node0(line('.'))<cr>
 endfunction
 
 function! lighttree#view#opener_basic(node, args = {})
