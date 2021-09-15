@@ -131,12 +131,23 @@ endfunction
 
 function! s:tree.wrap_name(node)
     if exists('self.name_wrapper')
-        call self.name_wrapper()
+        return self.name_wrapper()
     else
-        call s:wrap_name_default(self, a:node)
+        return s:wrap_name_default(self, a:node)
     endif
 endfunction
 
 function! s:wrap_name_default(tree, node)
-    
+    let sign_open = get(g:, 'lighttree_default_sign_open', '-')
+    let sign_close = get(g:, 'lighttree_default_sign_close', '+')
+    let sign_leaf = ' '
+    let node = a:node
+    let text = node.name
+    let text = node.isleaf ? sign_leaf . ' ' . text : 
+                \ node.isopen ? sign_open . ' ' . text :
+                \ sign_close . ' ' . text
+    if !exists('a:node.parent') && node.name != a:tree.name
+        let text .= ' ' . printf('[%s]', a:tree.name)
+    endif
+    return text
 endfunction

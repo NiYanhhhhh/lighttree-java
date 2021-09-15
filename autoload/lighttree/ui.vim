@@ -51,7 +51,7 @@ function! s:ui.render()
 endfunction
 
 function! s:ui.render_tree(tree, line_start)
-    call append(a:line_start, a:tree.name)
+    call append(a:line_start, a:tree.wrap_name(a:tree.root))
     let currentline = a:line_start + 1
     call insert(self.linenr_map, a:tree.root, currentline)
     if a:tree.root.isopen
@@ -70,7 +70,7 @@ function! s:ui.render_node(tree, node, currentline, depth, sp_arg = 0)
     let displaye_str_list = []
     for child_id in a:node.children
         let child = a:tree.find_node(child_id)
-        call add(displaye_str_list, repeat(" ", depth) . child.name)
+        call add(displaye_str_list, repeat(" ", depth) . a:tree.wrap_name(child))
     endfor
     call append(linenr, displaye_str_list)
 
@@ -104,6 +104,7 @@ function! s:ui.open(linenr, args = {})
     else
         call self.render_node(tree, node, a:linenr, depth, 1)
     endif
+    call self.render_node_text(tree, node, a:linenr, depth)
     setlocal nomodifiable
 endfunction
 
@@ -152,6 +153,7 @@ function! s:ui.close(linenr)
         call self.render_clear_child(tree, node, a:linenr)
     endif
     call tree.close(node)
+    call self.render_node_text(tree, node, a:linenr)
     setlocal nomodifiable
 endfunction
 
@@ -164,7 +166,7 @@ function! s:ui.render_clear_child(tree, node, currentline)
         return
     endif
     call remove(self.linenr_map, line_start, line_end)
-    call deletebufline(t:lighttree_buffer, line_start, line_end)
+    call deletebufline(bufname(), line_start, line_end)
 endfunction
 
 function! s:ui.toggle(linenr)
@@ -188,5 +190,14 @@ function! s:ui.refresh_node(tree, node, currentline, in_order)
         call self.render_clear_child(tree, node, a:currentline)
         call self.render_node(tree, node, a:currentline, depth, 1)
     endif
+    call self.render_node_text(tree, node, a:currentline, depth)
 endfunction
 
+function! s:ui.render_node_text(tree, node, currentline, depth = -1)
+    let depth = a:depth
+    if depth == -1
+        let depth = self.getnode_depth(a:tree, a:node)
+    endif
+    let text = repeat(' ', depth) . a:tree.wrap_name(a:node)
+    call setline(a:currentline, text)
+endfunction

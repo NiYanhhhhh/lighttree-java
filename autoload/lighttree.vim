@@ -10,5 +10,17 @@ endfunction
 function! lighttree#get_node()
     return b:lighttree_ui.getnode_from_linenr(line('.'))
 endfunction
+
+function! lighttree#show_linenr_map()
+    call lighttree#log#echo('show linenr map ==========')
+    for line in b:lighttree_ui.linenr_map
+        if type(line) != type({})
+            echom string(line)
+        else
+            echom line.name . ' isopen: ' . line.isopen
+        endif
+    endfor
+    call lighttree#log#echo('end ======================')
+endfunction
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 

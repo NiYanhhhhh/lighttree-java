@@ -69,19 +69,6 @@ function! lighttree#util#wrap_node(node, isleaf = 1, isopen = 0)
     return a:node
 endfunction
 
-" These functions is always used for test
-function! lighttree#util#show_linenr_map()
-    call lighttree#log#echo('show linenr map ==========')
-    for line in b:lighttree_ui.linenr_map
-        if type(line) != type({})
-            echom string(line)
-        else
-            echom line.name . ' isopen: ' . line.isopen
-        endif
-    endfor
-    call lighttree#log#echo('end ======================')
-endfunction
-
 function! lighttree#util#get_next_bufnr()
     if !exists('s:lighttree_bufnr_now')
         let s:lighttree_bufnr_now = 1

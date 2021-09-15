@@ -62,6 +62,7 @@ function! s:ui_test()
 
     let win_id = lighttree#view#create_win()
     exec 'edit lighttree_' . lighttree#util#get_next_bufnr()
+    let t:lighttree_buffer = 'lighttree_' . lighttree#util#get_next_bufnr()
     call lighttree#view#setup_buffer()
     call lighttree#view#common_map()
     if exists('b:lighttree_ui')
