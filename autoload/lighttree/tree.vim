@@ -110,3 +110,44 @@ function! s:tree.getlength_of_node(node)
     endif
     return length
 endfunction
+
+function! s:tree.sort(node)
+    if exists('self.sorter')
+        call self.sorter(a:node)
+    else
+        call s:sort_default(self, a:node)
+    endif
+endfunction
+
+function! s:sort_default(tree, node)
+    let name_list = []
+    let sort_result = []
+    for child_id in a:node.children
+        let child = self.find_node(child_id)
+        call add(name_list, child.name)
+    endfor
+
+endfunction
+
+function! s:tree.wrap_name(node)
+    if exists('self.name_wrapper')
+        return self.name_wrapper()
+    else
+        return s:wrap_name_default(self, a:node)
+    endif
+endfunction
+
+function! s:wrap_name_default(tree, node)
+    let sign_open = get(g:, 'lighttree_default_sign_open', '-')
+    let sign_close = get(g:, 'lighttree_default_sign_close', '+')
+    let sign_leaf = ' '
+    let node = a:node
+    let text = node.name
+    let text = node.isleaf ? sign_leaf . ' ' . text : 
+                \ node.isopen ? sign_open . ' ' . text :
+                \ sign_close . ' ' . text
+    if !exists('a:node.parent') && node.name != a:tree.name
+        let text .= ' ' . printf('[%s]', a:tree.name)
+    endif
+    return text
+endfunction

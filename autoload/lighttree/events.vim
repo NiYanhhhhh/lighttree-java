@@ -30,7 +30,7 @@ endfunction
 
 function! lighttree#events#register(event)
     if exists('s:handlers[a:event]')
-        call lighttree#log#echowarn("Event " . a:event . " exists!")
+        " call lighttree#log#echowarn("Event " . a:event . " exists!")
         return
     else
         let s:handlers[a:event] = []

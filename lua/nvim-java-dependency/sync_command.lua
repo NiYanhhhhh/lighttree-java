@@ -2,8 +2,8 @@
 
 local M = {}
 
-local timeout_ms = vim.g.JdtlsRequestTimeout or 500
-local jdtls_name = vim.g.JdtlsName or "jdt.ls"
+local timeout_ms = vim.g.lighttree_java_request_timeout or 500
+local jdtls_name = vim.g.lighttree_java_server_name or "jdt.ls"
 local bufnr = vim.api.nvim_eval('lighttree#util#get_bufnr_of_filetype("java")') or 0
 
 function M.execute_command(command_params)
@@ -18,6 +18,9 @@ function M.execute_command(command_params)
     return {}
   end
 
+  if not vim.fn.bufloaded(vim.fn.bufname(bufnr)) then
+    bufnr = vim.api.nvim_eval('lighttree#util#get_bufnr_of_filetype("java")') or 0
+  end
   local result = vim.lsp.buf_request_sync(bufnr, "workspace/executeCommand", command_params, timeout_ms)
   if result == nil then
     return {}

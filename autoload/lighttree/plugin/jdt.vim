@@ -199,6 +199,7 @@ function! s:create_child(tree, node, kind)
     " elseif kind == s:node_kind.PrimaryType
     " elseif kind == s:node_kind.File
     endif
+    call a:tree.sort(a:node)
 endfunction
 
 function! s:create_root_child(tree, node) abort
@@ -235,7 +236,8 @@ endfunction
 
 function! s:create_packageroot_child(tree, node)
     call lighttree#log#echoinfo("Indexing ".a:node.name."...")
-    let response = lighttree#plugin#jdt#get_package_data(a:tree.root.uri, 4, a:node)
+    let args = extend(a:node, { 'isHierarchicalView': g:lighttree_java_ishierarchical})
+    let response = lighttree#plugin#jdt#get_package_data(a:tree.root.uri, 4, args)
     let child_list = s:handle_response(response, a:node)
     for child in child_list
         call a:tree.add_node(child)
@@ -245,7 +247,8 @@ function! s:create_packageroot_child(tree, node)
 endfunction
 
 function! s:create_package_child(tree, node)
-    let response = lighttree#plugin#jdt#get_package_data(a:tree.root.uri, 5, a:node)
+    let args = extend(a:node, { 'isHierarchicalView': g:lighttree_java_ishierarchical})
+    let response = lighttree#plugin#jdt#get_package_data(a:tree.root.uri, 5, args)
     let child_list = s:handle_response(response, a:node)
     for child in child_list
         call a:tree.add_node(child)
