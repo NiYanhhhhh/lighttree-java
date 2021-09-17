@@ -86,9 +86,9 @@ function! lighttree#util#resolve(path)
 endfunction
 
 function! lighttree#util#get_bufnr_of_filetype(filetype)
-    let i = 0
+    let i = 1
     while 1
-        if (bufexists(i) || i == 0)
+        if (bufloaded(i))
             let name = bufname(i)
             if fnamemodify(name, ":e") == a:filetype
                 return bufnr(name)

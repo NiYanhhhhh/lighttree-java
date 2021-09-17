@@ -103,8 +103,8 @@ function! s:ui.open(linenr, args = {})
         call self.opener(node, a:args)
     else
         call self.render_node(tree, node, a:linenr, depth, 1)
+        call self.render_node_text(tree, node, a:linenr, depth)
     endif
-    call self.render_node_text(tree, node, a:linenr, depth)
     setlocal nomodifiable
 endfunction
 

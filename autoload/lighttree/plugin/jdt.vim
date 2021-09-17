@@ -126,7 +126,7 @@ function! lighttree#plugin#jdt#open_win(
     let b:lighttree_ui = ui
     call ui.render()
     setlocal nomodifiable
-    let &statusline='Java Dependency'
+    setlocal statusline=Java\ Dependency
 endfunction
 
 function! lighttree#plugin#jdt#close_win()
@@ -174,6 +174,7 @@ function! lighttree#plugin#jdt#toggle_win(
     else
         call lighttree#view#create_win(a:pos, a:size, a:args)
         exec 'buffer ' . t:lighttree_buffer
+        setlocal statusline=Java\ Dependency
     endif
 endfunction
 
