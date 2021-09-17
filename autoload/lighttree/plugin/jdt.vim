@@ -52,6 +52,7 @@ endfunction
 function! lighttree#plugin#jdt#get_package_data(project_uri, kind = 2, args = {}, callback = 'a')
     let args = {"kind": a:kind, "projectUri": a:project_uri}
     call extend(args, a:args, "force")
+    " call lighttree#log#echowarn("getting data of ".args['name'])
     let result = luaeval(s:njd.'get_package_data(_A)', args)
 
     " TODO: caches
