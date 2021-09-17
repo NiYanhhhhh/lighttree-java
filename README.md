@@ -6,7 +6,7 @@ A java dependency exloperor using neovim build-in lsp and [vscode-java-dependenc
 
 Requires:
 
-- [neovim](1) (version $\ge$ 0.5)
+- [neovim](1) (version >= 0.5)
 - running jdtls ([nvim-jdtls](2) is recommended)
 
 Configuration:
