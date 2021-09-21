@@ -39,6 +39,8 @@ Configuration:
 ## Feature
 
 ![feature](https://raw.githubusercontent.com/NiYanhhhhh/lighttree-java/master/screenshots/Peek%202021-09-16%2020-00.gif)
+HierarchcalView:
+![feature2](https://raw.githubusercontent.com/NiYanhhhhh/lighttree-java/master/screenshots/hierarchicalView.png)
 
 - configuration
 
@@ -51,12 +53,14 @@ Configuration:
     " this setting makes the window appear below the opening nerdtree window, set to empty dict to disable it
     let g:lighttree_win_args = {'follow': 'nerdtree'}
     " indicator show before the directory node (when opening)
-    let g:lighttree_default_sign_open = '-'
+    " nerdtree usually using '▾'
+    let g:lighttree_sign_open = '-'
     " indicator show before the directory node (when closing)
-    let g:lighttree_default_sign_close = '+'
+    " nerdtree usually using '▸'
+    let g:lighttree_sign_close = '+'
 
-    " [WIP] decide the appearance of java package in explorer (reference to eclipse project explorer)
-    let g:lighttree_java_ishierarchical = v:false
+    " decide the appearance of java package in explorer (reference to eclipse project explorer)
+    let g:lighttree_java_ishierarchical = v:true
     " this plugin uses sync request, this option decides the timeout the client waits
     let g:lighttree_java_request_timeout = 500
     " you java language server name (which is 'jdt.ls in nvim-jdtls')
@@ -84,7 +88,7 @@ Configuration:
 
 
 ## Story
-At first I try to hack [nerdtree](6) to achieve my goal. However it takes too many time and works not good. Maybe it's a bit hard for me. So I just write a extensible and easy-to-use ui api and it even takes me less time and seems to works good. This api, lighttree, is in the autoload directory, where you can see the source.
+At first I try to hack [nerdtree](6) to achieve my goal. However it takes too many time and works not good. Maybe it's a bit hard for me. So I just write a extensible and easy-to-use treeview ui api and it even takes me less time and seems to works good. This api, lighttree, is in the autoload directory, where you can see the source.
 
 Nerdtree is a wonderful plugin. I use it for a long time.
 

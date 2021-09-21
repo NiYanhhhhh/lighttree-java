@@ -33,7 +33,6 @@ let s:njd = 'require("nvim-java-dependency.sync_command").'
 function! lighttree#plugin#jdt#get_projects(url, callback = 'a')
     let projects = luaeval(s:njd.'get_projects({_A})', a:url)
 
-    " TODO: caches
     if exists('*'.a:callback)
         call function(a:callback)
     endif
@@ -52,10 +51,10 @@ endfunction
 function! lighttree#plugin#jdt#get_package_data(project_uri, kind = 2, args = {}, callback = 'a')
     let args = {"kind": a:kind, "projectUri": a:project_uri}
     call extend(args, a:args, "force")
-    " call lighttree#log#echowarn("getting data of ".args['name'])
+    let text = exists('args.name') ? args.name : args.path
+    " call lighttree#log#echowarn("getting data of ".text)
     let result = luaeval(s:njd.'get_package_data(_A)', args)
 
-    " TODO: caches
     if exists('*'.a:callback)
         call function(a:callback)
     endif
@@ -206,7 +205,7 @@ endfunction
 
 function! s:create_root_child(tree, node) abort
     call lighttree#log#echoinfo("Indexing...")
-    let response = lighttree#plugin#jdt#get_package_data(a:node.uri)
+    let response = lighttree#plugin#jdt#get_package_data(a:node.uri, a:node.kind, a:node)
     let root_data = []
     for item in response
         if item.entryKind == s:entry_kind.CPE_SOURCE
@@ -217,14 +216,15 @@ function! s:create_root_child(tree, node) abort
         call add(root_data, item)
     endfor
     for item in root_data
-        if item.kind == s:node_kind.Container
+        " if item.kind == s:node_kind.Container
             let item = lighttree#util#wrap_node(item, 0)
             let item.parent = a:node.id
             call a:tree.add_node(item)
 
             call s:create_child(a:tree, item, item.kind)
-        endif
+        " endif
     endfor
+    call a:tree.sort(a:node)
 endfunction
 
 function! s:create_container_child(tree, node)
@@ -237,14 +237,25 @@ function! s:create_container_child(tree, node)
 endfunction
 
 function! s:create_packageroot_child(tree, node)
-    call lighttree#log#echoinfo("Indexing ".a:node.name."...")
+    " call lighttree#log#echoinfo("Indexing ".a:node.name."...")
     let args = extend(a:node, { 'isHierarchicalView': g:lighttree_java_ishierarchical})
     let response = lighttree#plugin#jdt#get_package_data(a:tree.root.uri, 4, args)
-    let child_list = s:handle_response(response, a:node)
+    let child_list = s:handle_response(response, a:node, 1)
     for child in child_list
-        call a:tree.add_node(child)
         " call s:create_child(a:tree, child, child.kind)
-        let child.action_init = function('s:create_child', [a:tree, child, child.kind])
+        if exists('child.is_trie') && child.is_trie
+            let package_node_list = []
+            for head in child.get_heads()
+                let packages_in_head = a:tree.mount_tree_as_child(child, a:node, head, {'arg': 2, 'mark': 'is_package'})
+                let package_node_list += packages_in_head
+            endfor
+            for package in package_node_list
+                let package.action_init = function('s:create_child', [a:tree, package, package.kind])
+            endfor
+        else
+            call a:tree.add_node(child)
+            let child.action_init = function('s:create_child', [a:tree, child, child.kind])
+        endif
     endfor
 endfunction
 
@@ -259,14 +270,8 @@ function! s:create_package_child(tree, node)
     endfor
 endfunction
 
-" function! s:create_primarytype_child(tree, node)
-    " let response = lighttree#plugin#jdt#get_package_data(a:tree.root.uri, 3, a:node)
-    " let child_list = s:handle_response(response, a:node)
-    " for child in child_list
-        " call a:tree.add_node(child)
-        " call s:create_child(a:tree, child, child.kind)
-    " endfor
-" endfunction
+function! s:create_primarytype_child(tree, node)
+endfunction
 
 function! s:create_folder_child(tree, node)
     let response = lighttree#plugin#jdt#get_package_data(a:tree.root.uri, 7, a:node)
@@ -277,8 +282,11 @@ function! s:create_folder_child(tree, node)
     endfor
 endfunction
 
-function! s:handle_response(response, parent)
+function! s:handle_response(response, parent, sp_arg = 0)
     let child_list = []
+    if g:lighttree_java_ishierarchical && a:sp_arg
+        let trie = lighttree#trie#new()
+    endif
     for item in a:response
         let item = lighttree#util#wrap_node(item, 0)
         let item.parent = a:parent.id
@@ -291,15 +299,24 @@ function! s:handle_response(response, parent)
             let item.isleaf = 1
         elseif item.kind == s:node_kind.File
             let item.isleaf = 1
+        elseif item.kind == s:node_kind.Package && g:lighttree_java_ishierarchical
+            let item.is_package = 1
+            call trie.add_node(item)
+            continue
         endif
 
         call add(child_list, item)
     endfor
+    if g:lighttree_java_ishierarchical && a:sp_arg
+        call trie.compress()
+        call trie.sort()
+        call add(child_list, trie)
+    endif
 
     return child_list
 endfunction
 
 function! s:opener(node, args)
-    let path = a:node.uri
+    let path = lighttree#plugin#jdt#url_to_string(a:node.uri)
     call lighttree#view#opener_file(path, a:args)
 endfunction

@@ -24,6 +24,12 @@ function! s:ui_test()
     let child2.parent = root.id
     let child2.isopen = 0
     call tree.add_node(child2)
+    let p_c4 = {'name': 'p_c4'}
+    call lighttree#util#wrap_node(p_c4)
+    let p_c4.isleaf = 0
+    let p_c4.parent = child1.id
+    let p_c4.isopen = 0
+    call tree.add_node(p_c4)
     let child3 = {'name': 'child3'}
     call lighttree#util#wrap_node(child3)
     let child3.isleaf = 0
@@ -63,10 +69,11 @@ function! s:ui_test()
     let root1.isopen = 1
 
     call tree1.create(root1)
+    call tree1.mount_tree_as_child(tree, root1, tree.root)
 
     let win_id = lighttree#view#create_win()
     let bufnr = lighttree#util#get_next_bufnr()
-    set modifiable
+    setlocal modifiable
     exec 'edit lighttree_' . bufnr
     let t:lighttree_buffer = 'lighttree_' . bufnr
     call lighttree#view#setup_buffer()

@@ -100,12 +100,13 @@ function! s:ui.open(linenr, args = {})
     let depth = self.getnode_depth(tree, node)
     call tree.open(node)
     if node.isleaf
+        setlocal nomodifiable
         call self.opener(node, a:args)
     else
         call self.render_node(tree, node, a:linenr, depth, 1)
         call self.render_node_text(tree, node, a:linenr, depth)
+        setlocal nomodifiable
     endif
-    setlocal nomodifiable
 endfunction
 
 function! s:ui.getnode_from_linenr(linenr)
@@ -136,7 +137,7 @@ function! s:ui.getnode_depth(tree, node)
     let node = a:node
     while exists('node.parent')
         let depth += self.indent
-        let node = lighttree#util#find_id_in(a:tree.nodes, node.parent)
+        let node = lighttree#util#find(a:tree.nodes, {'id': node.parent})
     endwhile
     return depth
 endfunction
@@ -185,7 +186,7 @@ function! s:ui.refresh_node0(linenr, in_order = 1)
 endfunction
 
 function! s:ui.refresh_node(tree, node, currentline, in_order)
-    set modifiable
+    setlocal modifiable
     let tree = a:tree
     let node = a:node
     let depth = self.getnode_depth(tree, node)
@@ -198,7 +199,7 @@ function! s:ui.refresh_node(tree, node, currentline, in_order)
         call self.render_node(tree, node, a:currentline, depth, 1)
     endif
     call self.render_node_text(tree, node, a:currentline, depth)
-    set nomodifiable
+    setlocal nomodifiable
 endfunction
 
 function! s:ui.render_node_text(tree, node, currentline, depth = -1)
@@ -208,4 +209,28 @@ function! s:ui.render_node_text(tree, node, currentline, depth = -1)
     endif
     let text = repeat(' ', depth) . a:tree.wrap_name(a:node)
     call setline(a:currentline, text)
+endfunction
+
+function! s:ui.focus_node_next()
+    
+endfunction
+
+function! s:ui.focus_node_prev()
+    
+endfunction
+
+function! s:ui.focus_node_first()
+    
+endfunction
+
+function! s:ui.focus_node_last()
+    
+endfunction
+
+function! s:ui.focus_node_parent()
+    
+endfunction
+
+function! s:ui.stress_node()
+    
 endfunction

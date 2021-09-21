@@ -1,3 +1,5 @@
+" TODO: optimize
+"   id system is too slow
 function! lighttree#util#get_next_id(list)
     let is_get = 0
     let max_id = 0
@@ -41,18 +43,26 @@ function! lighttree#util#tidy_id_list(list)
     endfor
 
     " for i in range(len(a:list))
-        " if i != a:list[i].id
-            " let a:list[i].id = i
-        " endif
+    " if i != a:list[i].id
+    " let a:list[i].id = i
+    " endif
     " endfor
 endfunction
 
-function! lighttree#util#find_id_in(list, id)
+function! lighttree#util#find(list, obj)
     for obj in a:list
-        if obj.id == a:id
+        let get = 1
+        for [key, value] in items(a:obj)
+            if obj[key] != value
+                let get = 0
+                break
+            endif
+        endfor
+        if get
             return obj
         endif
     endfor
+    return {}
 endfunction
 
 " what keys does a valid node needs?
@@ -81,7 +91,7 @@ endfunction
 
 " This function is stolen from nerdtree
 function! lighttree#util#resolve(path)
-    let tmp = resolve(a:path)
+    let tmp = a:path =~# 'jdt:/\+' ? a:path : resolve(a:path)
     return tmp =~# '.\+/$' ? substitute(tmp, '/$', '', '') : tmp
 endfunction
 
@@ -108,14 +118,17 @@ function! lighttree#util#compare_func_for_str(str1, str2)
         let index1 = a:str1 =~# l_end[i] ? i : index1
         let index2 = a:str2 =~# l_end[i] ? i : index2
     endfor
-    if index1 > index2
-        return 1
-    elseif index1 < index2
-        return -1
+    if index1 + index2 > -2
+        return index1 > index2 ? 1:
+                    \ index1 < index2 ? -1: 0
     endif
 
-    if index1 == index2 && index1 != -1
-        return 0
+    let index1 = 0
+    let index2 = 0
+    let index1 = a:str1[0] =~ '\u'
+    let index2 = a:str2[0] =~ '\u'
+    if index1 + index2 == 1
+        return index1 - index2
     endif
 
     return a:str1 > a:str2 ? 1:

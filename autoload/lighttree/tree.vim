@@ -77,7 +77,7 @@ function! s:tree.add_node(node)
     if !exists('a:node.id')
         let a:node.id = lighttree#util#get_next_id(self.nodes)
     endif
-    let parent = lighttree#util#find_id_in(self.nodes, a:node.parent)
+    let parent = lighttree#util#find(self.nodes, {'id': a:node.parent})
     call add(parent.children, a:node.id)
     call add(self.nodes, a:node)
     if a:node.isopen
@@ -93,7 +93,34 @@ function! s:tree.init_node(node)
 endfunction
 
 function! s:tree.find_node(id)
-    return lighttree#util#find_id_in(self.nodes, a:id)
+    return lighttree#util#find(self.nodes, {'id': a:id})
+endfunction
+
+" sp_arg: 
+"   arg:
+"      0: return []
+"      1: return all node
+"      2: return node with mark
+"   mark: mark name
+function! s:tree.mount_tree_as_child(tree, parent, root, sp_arg = {'arg': 0}) abort
+    let result = []
+    let root = deepcopy(a:root)
+    let root.children = []
+    let children = copy(a:root.children)
+    let root.parent = a:parent.id
+    let root.id = lighttree#util#get_next_id(self.nodes)
+    call self.add_node(root)
+    if a:sp_arg.arg == 1 || (a:sp_arg.arg == 2 && exists('root[a:sp_arg.mark]') && root[a:sp_arg.mark])
+        call add(result, root)
+    endif
+    if !root.isleaf
+        for child_id in children
+            let child = a:tree.find_node(child_id)
+            let result_child = self.mount_tree_as_child(a:tree, root, child, a:sp_arg)
+            let result += result_child
+        endfor
+    endif
+    return result
 endfunction
 
 function! s:tree.getlength()
@@ -111,6 +138,7 @@ function! s:tree.getlength_of_node(node)
     return length
 endfunction
 
+" TODO: directory sort seems to not work
 function! s:tree.sort(node)
     let Func_cp = function('lighttree#util#compare_func_for_str')
     if exists('self.compare_func')
@@ -168,8 +196,8 @@ function! s:tree.wrap_name(node)
 endfunction
 
 function! s:wrap_name_default(tree, node)
-    let sign_open = get(g:, 'lighttree_default_sign_open', '-')
-    let sign_close = get(g:, 'lighttree_default_sign_close', '+')
+    let sign_open = get(g:, 'lighttree_sign_open', '-')
+    let sign_close = get(g:, 'lighttree_sign_close', '+')
     let sign_leaf = ' '
     let node = a:node
     let text = node.name
