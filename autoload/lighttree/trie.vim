@@ -74,8 +74,6 @@ function! s:trie.compress()
 endfunction
 
 function! s:trie.compress_node(node)
-    call test#echowarn("=== compressing node: " . a:node.name)
-    call test#echowarn("children: " . string(a:node.children))
     let node = a:node
     if len(node.children) == 1
         let child = self.find_node(node.children[0])
