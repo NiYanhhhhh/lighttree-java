@@ -86,7 +86,7 @@ function! s:get_followed_winid(name)
 endfunction
 
 function! lighttree#view#opener_file(path, args = {})
-    call test#echowarn("== path ==========")
+    " call test#echowarn("== path ==========")
     Ins a:path
     let flag = get(a:args, 'flag', 'e')
     let winid = get(a:args, 'winid', g:lighttree#view#last_winid)

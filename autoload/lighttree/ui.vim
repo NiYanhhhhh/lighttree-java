@@ -137,7 +137,7 @@ function! s:ui.getnode_depth(tree, node)
     let node = a:node
     while exists('node.parent')
         let depth += self.indent
-        let node = lighttree#util#find(a:tree.nodes, {'id': node.parent})
+        let node = lighttree#util#find_id(a:tree.nodes, node.parent)
     endwhile
     return depth
 endfunction
@@ -200,6 +200,19 @@ function! s:ui.refresh_node(tree, node, currentline, in_order)
     endif
     call self.render_node_text(tree, node, a:currentline, depth)
     setlocal nomodifiable
+endfunction
+
+function! s:ui.reload_node(tree, node, currentline, in_order)
+    setlocal modifiable
+    let tree = a:tree
+    let node = a:node
+    setlocal nomodifiable
+endfunction
+
+function! s:ui.reload_node0(linenr, in_order = 1)
+    let tree = self.gettree_from_linenr(a:linenr)
+    let node = self.getnode_from_linenr(a:linenr)
+    call self.reload_node(tree, node, a:linenr, a:in_order)
 endfunction
 
 function! s:ui.render_node_text(tree, node, currentline, depth = -1)

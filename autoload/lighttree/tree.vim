@@ -77,7 +77,7 @@ function! s:tree.add_node(node)
     if !exists('a:node.id')
         let a:node.id = lighttree#util#get_next_id(self.nodes)
     endif
-    let parent = lighttree#util#find(self.nodes, {'id': a:node.parent})
+    let parent = self.find_node(a:node.parent)
     call add(parent.children, a:node.id)
     call add(self.nodes, a:node)
     if a:node.isopen
@@ -93,7 +93,7 @@ function! s:tree.init_node(node)
 endfunction
 
 function! s:tree.find_node(id)
-    return lighttree#util#find(self.nodes, {'id': a:id})
+    return lighttree#util#find_id(self.nodes, a:id)
 endfunction
 
 " sp_arg: 

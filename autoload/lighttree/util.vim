@@ -1,6 +1,6 @@
 " TODO: optimize
 "   id system is too slow
-function! lighttree#util#get_next_id(list)
+function! lighttree#util#get_next_id_old(list)
     let is_get = 0
     let max_id = 0
     for obj in a:list
@@ -27,6 +27,41 @@ function! lighttree#util#get_next_id(list)
         endif
     endfor
     return max_id + 1
+endfunction
+
+function! lighttree#util#get_next_id(list, in_order = 0)
+    if len(a:list) == 0
+        return 0
+    endif
+    if a:in_order
+        call lighttree#util#tidy_id_list(a:list)
+    endif
+    return a:list[-1].id + 1
+endfunction
+
+function! lighttree#util#find_id(list, id, in_order = 0)
+    if a:in_order
+        call lighttree#util#tidy_id_list(a:list)
+    endif
+    let target_id = a:id
+    let target = a:list[target_id]
+    while target.id != a:id
+        let target_id -= 1
+        if target_id < 0
+            if a:in_order
+                call lighttree#log#echoerr('id ' . a:id . ' not found!')
+                return {}
+            endif
+            let target = lighttree#util#find_id(a:list, a:id, 1)
+            return target
+        endif
+        let target = a:list[target_id]
+    endwhile
+    return target
+endfunction
+
+function! lighttree#util#find_id_old(list, id)
+    return lighttree#util#find(a:list, {'id': a:id})
 endfunction
 
 function! lighttree#util#tidy_id_list(list)

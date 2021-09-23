@@ -64,7 +64,7 @@ function! s:trie.build_head(name)
 endfunction
 
 function! s:trie.find_node(id)
-    return lighttree#util#find(self.nodes, {'id': a:id})
+    return lighttree#util#find_id(self.nodes, a:id)
 endfunction
 
 function! s:trie.compress()
