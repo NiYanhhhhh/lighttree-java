@@ -9,7 +9,9 @@ endfunction
 
 function! lighttree#log#echoerr(msg)
     let msg = s:wrap_msg(a:msg)
-    echoerr msg
+    echohl ErrorMsg
+    call lighttree#log#echo(a:msg)
+    echohl None
 endfunction
 
 function! lighttree#log#echowarn(msg)

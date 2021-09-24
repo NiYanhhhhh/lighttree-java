@@ -4,13 +4,18 @@ let g:lighttree#view#last_winid = 0
 function! lighttree#view#create_win(
             \   pos = get(g:, 'lighttree_win_pos', 'topleft'),
             \   size = get(g:, 'lighttree_win_size', [30, 25]),
-            \   args = get(g:, 'lighttree_win_args', {'follow': 'nerdtree'})
+            \   args = get(g:, 'lighttree_win_args', {'follow': ['nerdtree', 'lighttree']})
             \ ) abort
     let g:lighttree#view#last_buffer = bufnr()
     let g:lighttree#view#last_winid = win_getid()
     let winnr = -1
     if exists('a:args.follow')
-        let winnr = s:get_followed_winid(a:args.follow)
+        for bufname in a:args.follow
+            let winnr = s:get_followed_winid(bufname)
+            if winnr != -1
+                break
+            endif
+        endfor
     endif
 
     if winnr != -1
@@ -57,10 +62,18 @@ endfunction
 function! lighttree#view#common_map()
     nnoremap <buffer> q <cmd>call lighttree#view#close_win()<cr>
     nnoremap <buffer> <cr> <cmd>call b:lighttree_ui.toggle(line('.'))<cr>
+    nnoremap <buffer> <2-leftmouse> <cmd>call b:lighttree_ui.toggle(line('.'))<cr>
     nnoremap <buffer> o <cmd>call b:lighttree_ui.toggle(line('.'))<cr>
     nnoremap <buffer> s <cmd>call b:lighttree_ui.open(line('.'), {'flag': 'v'})<cr>
     nnoremap <buffer> i <cmd>call b:lighttree_ui.open(line('.'), {'flag': 'h'})<cr>
     nnoremap <buffer> t <cmd>call b:lighttree_ui.open(line('.'), {'flag': 't'})<cr>
+    nnoremap <buffer> p <cmd>call b:lighttree_ui.focus_node_parent(line('.'))<cr>
+    nnoremap <buffer> P <cmd>call b:lighttree_ui.focus_node_root(line('.'))<cr>
+    nnoremap <buffer> J <cmd>call b:lighttree_ui.focus_node_last(line('.'))<cr>
+    nnoremap <buffer> K <cmd>call b:lighttree_ui.focus_node_first(line('.'))<cr>
+    nnoremap <buffer> <c-n> <cmd>call b:lighttree_ui.focus_node_middle(line('.'))<cr>
+    nnoremap <buffer> <c-j> <cmd>call b:lighttree_ui.focus_node_next(line('.'))<cr>
+    nnoremap <buffer> <c-k> <cmd>call b:lighttree_ui.focus_node_prev(line('.'))<cr>
     nnoremap <buffer> r <cmd>call b:lighttree_ui.refresh_node0(line('.'))<cr>
 endfunction
 
@@ -80,6 +93,10 @@ function! s:get_followed_winid(name)
         if exists('t:NERDTreeBufName')
             let winnr = bufwinnr(bufnr(t:NERDTreeBufName))
         endif
+    elseif a:name == 'lighttree'
+        if exists('t:lighttree_buffer')
+            let winnr = bufwinnr(bufnr(t:lighttree_buffer))
+        endif
     endif
 
     return winnr
@@ -89,9 +106,10 @@ function! lighttree#view#opener_file(path, args = {})
     " call test#echowarn("== path ==========")
     Ins a:path
     let flag = get(a:args, 'flag', 'e')
-    let winid = get(a:args, 'winid', g:lighttree#view#last_winid)
+    " let winid = get(a:args, 'winid', g:lighttree#view#last_winid)
 
-    exec win_id2win(winid) . 'wincmd w'
+    " exec win_id2win(winid) . 'wincmd w'
+    wincmd p
     if flag == 'v'
         exec 'vsplit `=' . string(a:path) . '`'
     elseif flag == 'h'

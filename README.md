@@ -79,8 +79,25 @@ HierarchcalView:
     nnoremap <buffer> i <cmd>call b:lighttree_ui.open(line('.'), {'flag': 'h'})<cr>
     "open leaf node in new tab
     nnoremap <buffer> t <cmd>call b:lighttree_ui.open(line('.'), {'flag': 't'})<cr>
-    "refresh node
+    "[WIP] refresh node
     nnoremap <buffer> r <cmd>call b:lighttree_ui.refresh_node0(line('.'))<cr>
+
+    "" navigation actions
+    "focus on parent node
+    nnoremap <buffer> p <cmd>call b:lighttree_ui.focus_node_parent(line('.'))<cr>
+    "focus on root node
+    nnoremap <buffer> P <cmd>call b:lighttree_ui.focus_node_root(line('.'))<cr>
+    "focus on last node in its brother nodes
+    nnoremap <buffer> J <cmd>call b:lighttree_ui.focus_node_last(line('.'))<cr>
+    "focus on first node in its brother nodes
+    nnoremap <buffer> K <cmd>call b:lighttree_ui.focus_node_first(line('.'))<cr>
+    "focus on about middle position in its brother nodes
+    nnoremap <buffer> <c-n> <cmd>call b:lighttree_ui.focus_node_middle(line('.'))<cr>
+    "focus on next node in its brother nodes
+    nnoremap <buffer> <c-j> <cmd>call b:lighttree_ui.focus_node_next(line('.'))<cr>
+    "focus on previous node in its brother nodes
+    nnoremap <buffer> <c-k> <cmd>call b:lighttree_ui.focus_node_prev(line('.'))<cr>
+
 
     " map a function to start (not do in the plugin):
     " nnoremap <silent> <leader><f3> <cmd>call lighttree#plugin#jdt#toggle_win()<cr>

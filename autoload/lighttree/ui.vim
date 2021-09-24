@@ -224,24 +224,53 @@ function! s:ui.render_node_text(tree, node, currentline, depth = -1)
     call setline(a:currentline, text)
 endfunction
 
-function! s:ui.focus_node_next()
-    
+function! s:ui.focus_which(linenr, cb)
+    let node = self.getnode_from_linenr(a:linenr)
+    let tree = self.gettree_from_linenr(a:linenr)
+    if !exists('node.parent')
+        call lighttree#log#echoerr('Action error! no more parent node.')
+        return
+    endif
+    let parent = tree.find_node(node.parent)
+    try
+        let next_id = a:cb(parent, node)
+    catch /E684/
+        call lighttree#log#echoerr('Action error! no such a node.')
+        let next_id = parent.children[0]
+    endtry
+    let next_node = tree.find_node(next_id)
+    exec 'normal ' . index(self.linenr_map, next_node) . 'gg'
 endfunction
 
-function! s:ui.focus_node_prev()
-    
+function! s:ui.focus_node_next(linenr = line('.'))
+    call self.focus_which(a:linenr, {parent, node ->
+                \ parent.children[index(parent.children, node.id) + 1]})
 endfunction
 
-function! s:ui.focus_node_first()
-    
+function! s:ui.focus_node_prev(linenr = line('.'))
+    call self.focus_which(a:linenr, {parent, node ->
+                \ parent.children[index(parent.children, node.id) - 1]})
 endfunction
 
-function! s:ui.focus_node_last()
-    
+function! s:ui.focus_node_middle(linenr = line('.'))
+    call self.focus_which(a:linenr, {parent, node -> 
+                \ parent.children[(len(parent.children) - 1) / 2]})
 endfunction
 
-function! s:ui.focus_node_parent()
-    
+function! s:ui.focus_node_first(linenr = line('.'))
+    call self.focus_which(a:linenr, {parent, node -> parent.children[0]})
+endfunction
+
+function! s:ui.focus_node_last(linenr = line('.'))
+    call self.focus_which(a:linenr, {parent, node -> parent.children[-1]})
+endfunction
+
+function! s:ui.focus_node_parent(linenr = line('.'))
+    call self.focus_which(a:linenr, {parent, node -> parent.id})
+endfunction
+
+function! s:ui.focus_node_root(linenr = line('.'))
+    call self.focus_which(a:linenr, {parent, node -> 0})
 endfunction
 
 function! s:ui.stress_node()
