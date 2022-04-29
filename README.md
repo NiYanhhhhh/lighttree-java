@@ -1,5 +1,9 @@
 # lighttree-java
 
+**Note:** _This plugin won't update anymore, A new one using lua is coming on the way._
+
+------
+
 A java dependency exloperor using neovim build-in lsp and [vscode-java-dependency](4) bundle.
 
 ## Installation
