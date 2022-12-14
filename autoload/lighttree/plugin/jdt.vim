@@ -1,6 +1,6 @@
 let g:lighttree_jdt_win_pos = get(g:, 'lighttree_win_pos', 'topleft')
 let g:lighttree_jdt_win_size = get(g:, 'lighttree_win_size', [30, 25])
-let g:lighttree_jdt_win_args = get(g:, 'lighttree_win_args', {'follow': 'nerdtree'})
+let g:lighttree_jdt_win_args = get(g:, 'lighttree_win_args', {'follow': ['nerdtree', 'nvimtree']})
 
 let s:middle_symbol = '_(:3_r_/_)_'
 let s:node_kind = {
@@ -52,7 +52,7 @@ function! lighttree#plugin#jdt#get_package_data(project_uri, kind = 2, args = {}
     let args = {"kind": a:kind, "projectUri": a:project_uri}
     call extend(args, a:args, "force")
     let text = exists('args.name') ? args.name : args.path
-    " call lighttree#log#echowarn("getting data of ".text)
+    call lighttree#log#echowarn("getting data of ".text)
     let result = luaeval(s:njd.'get_package_data(_A)', args)
 
     if exists('*'.a:callback)
@@ -115,6 +115,7 @@ function! lighttree#plugin#jdt#open_win(
         let tree = lighttree#tree#new()
         let root = lighttree#util#wrap_node(projects[i], 0, 1)
         call tree.create(root)
+        let tree.reloader = function('s:reloader', [tree])
         call s:create_root_child(tree, root)
         call ui.add_tree(tree)
     endfor
@@ -122,7 +123,7 @@ function! lighttree#plugin#jdt#open_win(
     let win_id = s:create_win(a:pos, a:size, a:args)
     if exists('b:lighttree_ui')
         unlet b:lighttree_ui
-    endif
+    endi
     let b:lighttree_ui = ui
     call ui.render()
     setlocal nomodifiable
@@ -201,6 +202,20 @@ function! s:create_child(tree, node, kind)
     " elseif kind == s:node_kind.File
     endif
     call a:tree.sort(a:node)
+endfunction
+
+function! s:reloader(tree, node)
+    let node = a:node
+    if !exists('a:node.parent')
+        call lighttree#log#echowarn('Cannot reload root node!')
+    else
+        if !exists('node.kind') || node.kind == s:node_kind.Package
+            let parent = lighttree#util#find_id(a:tree.nodes, node.parent)
+            call s:reloader(a:tree, parent)
+        else
+            call s:create_child(a:tree, node, node.kind)
+        endif
+    endif
 endfunction
 
 function! s:create_root_child(tree, node) abort

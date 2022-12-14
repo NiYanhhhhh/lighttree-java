@@ -39,6 +39,15 @@ function! s:tree.open(node)
     endif
 endfunction
 
+function! s:tree.reload(node)
+    if !a:node.isleaf
+        let a:node.children = []
+    endif
+    if exists('self.reloader')
+        call self.reloader(a:node)
+    endif
+endfunction
+
 function! s:tree.close(node)
     if !a:node.isleaf
         let a:node.isopen = 0

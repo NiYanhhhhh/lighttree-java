@@ -1,12 +1,24 @@
 #!/usr/bin/lua
-
 local M = {}
 
 local timeout_ms = vim.g.lighttree_java_request_timeout or 500
-local jdtls_name = vim.g.lighttree_java_server_name or "jdt.ls"
+local jdtls_name = vim.g.lighttree_java_server_name or "jdtls"
 local bufnr = vim.api.nvim_eval('lighttree#util#get_bufnr_of_filetype("java")') or 0
 
+local function check_params(params)
+  for k, v in pairs(params) do
+    if type(k) == "boolean" then
+      params[k] = nil
+    end
+    if type(v) == "table" then
+      check_params(v)
+    end
+  end
+  return params
+end
+
 function M.execute_command(command_params)
+  -- print(vim.inspect(command_params))
   local client_id = -1
   for _, client in ipairs(vim.lsp.get_active_clients()) do
     if client.name == jdtls_name then
@@ -21,6 +33,7 @@ function M.execute_command(command_params)
   if not vim.fn.bufloaded(vim.fn.bufname(bufnr)) then
     bufnr = vim.api.nvim_eval('lighttree#util#get_bufnr_of_filetype("java")') or 0
   end
+  check_params(command_params)
   local result = vim.lsp.buf_request_sync(bufnr, "workspace/executeCommand", command_params, timeout_ms)
   if result == nil then
     return {}
@@ -28,14 +41,14 @@ function M.execute_command(command_params)
 
   local response = {}
   for id, resp in pairs(result) do
-    if id == nil then
-      print("Error! " .. resp)
-    else
-      if id == client_id then
-        response = resp.result
+    if id == client_id then
+      if resp.error then
+        print("Error! ".. resp.error.message)
       else
-        print("Could not resolve command " .. command_params.command .. ", jdtls not found.")
+        response = resp.result
       end
+    else
+      print("Could not resolve command " .. command_params.command .. ", jdtls not found.")
     end
   end
   if response == nil then

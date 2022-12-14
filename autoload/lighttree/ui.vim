@@ -163,7 +163,7 @@ function! s:ui.render_clear_child(tree, node, currentline)
     let line_start = a:currentline + 1
     let line_end = a:currentline + node_len - 1
     if line_end < line_start
-        echo '[lighttree]: This node has no child'
+        echo '[lighttree]: This node has no child or not open.'
         return
     endif
     call remove(self.linenr_map, line_start, line_end)
@@ -206,6 +206,15 @@ function! s:ui.reload_node(tree, node, currentline, in_order)
     setlocal modifiable
     let tree = a:tree
     let node = a:node
+    let depth = self.getnode_depth(tree, node)
+    call lighttree#events#broadcast0('reload_node', node)
+    call self.render_clear_child(tree, node, a:currentline)
+    call tree.reload(node)
+    if node.isopen
+        call self.render_node(tree, node, a:currentline, depth, 1)
+    endif
+    call self.render_node_text(tree, node, a:currentline, depth)
+    call lighttree#log#echoinfo('node ' . node.name . ' reloaded!')
     setlocal nomodifiable
 endfunction
 

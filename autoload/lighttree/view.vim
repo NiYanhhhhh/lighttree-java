@@ -4,7 +4,7 @@ let g:lighttree#view#last_winid = 0
 function! lighttree#view#create_win(
             \   pos = get(g:, 'lighttree_win_pos', 'topleft'),
             \   size = get(g:, 'lighttree_win_size', [30, 25]),
-            \   args = get(g:, 'lighttree_win_args', {'follow': ['nerdtree', 'lighttree']})
+            \   args = get(g:, 'lighttree_win_args', {'follow': ['nerdtree', 'lighttree', 'NvimTree']})
             \ ) abort
     let g:lighttree#view#last_buffer = bufnr()
     let g:lighttree#view#last_winid = win_getid()
@@ -75,6 +75,7 @@ function! lighttree#view#common_map()
     nnoremap <buffer> <c-j> <cmd>call b:lighttree_ui.focus_node_next(line('.'))<cr>
     nnoremap <buffer> <c-k> <cmd>call b:lighttree_ui.focus_node_prev(line('.'))<cr>
     nnoremap <buffer> r <cmd>call b:lighttree_ui.refresh_node0(line('.'))<cr>
+    nnoremap <buffer> R <cmd>call b:lighttree_ui.reload_node0(line('.'))<cr>
 endfunction
 
 function! lighttree#view#opener_basic(node, args = {})
@@ -88,7 +89,7 @@ function! lighttree#view#opener_basic(node, args = {})
 endfunction
 
 function! s:get_followed_winid(name)
-    let winnr = -1
+    let winnr = bufnr(a:name)
     if a:name == 'nerdtree'
         if exists('t:NERDTreeBufName')
             let winnr = bufwinnr(bufnr(t:NERDTreeBufName))
@@ -97,6 +98,8 @@ function! s:get_followed_winid(name)
         if exists('t:lighttree_buffer')
             let winnr = bufwinnr(bufnr(t:lighttree_buffer))
         endif
+    elseif a:name == 'NvimTree'
+        let winnr = bufwinnr(bufnr("NvimTree_"))
     endif
 
     return winnr
@@ -104,7 +107,7 @@ endfunction
 
 function! lighttree#view#opener_file(path, args = {})
     " call test#echowarn("== path ==========")
-    Ins a:path
+    " Ins a:path
     let flag = get(a:args, 'flag', 'e')
     " let winid = get(a:args, 'winid', g:lighttree#view#last_winid)
 
