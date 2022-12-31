@@ -1,6 +1,7 @@
 # lighttree-java
 
-**Note:** _This plugin won't update anymore, A new one using lua is coming on the way._
+**Note:** _This plugin won't update anymore, A new one using is coming on the way. But this plugin is still working with the newest jdtls and ms bundle. I fix it again._
+
 
 ------
 
